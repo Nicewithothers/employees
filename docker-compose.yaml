@@ -1,0 +1,30 @@
+services:
+  mariadb:
+    image: mariadb:latest
+    container_name: mariadb
+    expose:
+      - 3306
+    environment:
+      MYSQL_DATABASE: employees
+      MYSQL_ALLOW_EMPTY_PASSWORD: 'yes'
+      MYSQL_USER: employees
+      MYSQL_PASSWORD: employees
+    ports:
+      - '3306:3306'
+  web:
+    image: employees:1.0.0
+    container_name: employees
+    depends_on:
+      - mariadb
+        # condition: service_healthy
+    environment:
+      SPRING_DATASOURCE_URL: 'jdbc:mariadb://mariadb:3306/employees'
+      SPRING_DATASOURCE_USERNAME: employees
+      SPRING_DATASOURCE_PASSWORD: employees
+    #healthcheck:
+    #  test: ["CMD", "healthcheck.sh", "--su-mysql", "--connect", "--innodb_initialized"]
+    #  interval: 5s
+    #  retries: 3
+    #  timeout: 20s
+    ports:
+      - '8080:8080'
