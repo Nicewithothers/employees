@@ -12,7 +12,7 @@
 
     <groupId>training</groupId>
     <artifactId>employees</artifactId>
-    <version>1.0.0</version>
+    <version>1.0.0-${build.number}</version>
 
     <properties>
         <mapstruct.version>1.5.5.Final</mapstruct.version>
@@ -27,6 +27,7 @@
             ${project.basedir}/target/surefire-reports/,
             ${project.basedir}/target/failsafe-reports/
         </sonar.junit.reportPaths>
+        <build.number>unknown</build.number>
     </properties>
 
     <!-- Maven - nexus

@@ -1,14 +1,39 @@
 pipeline {
-    agent any
+    environment {
+        DOCKERHUB_CREDENTIALS = credentials('dockerhub-credentials')
+        VERSION_NUMBER = sh (
+                    script: './mvnw help:evaluate -Dexpression=project.version -Dbuild.number=${BUILD_NUMBER} -q -DforceStdout',
+                    returnStdout: true).trim()
+        IMAGE_NAME = "nicewithothers/employees:${VERSION_NUMBER}"
+        }
+
+    agent {
+        dockerfile {
+            filename 'Dockerfile.build'
+            args '-e DOCKER_CONFIG=./docker'
+        }
+    }
+
     stages {
         stage('Commit') {
             steps {
                 echo "Commit stage"
+                sh "./mvnw -B clean package -Dbuild.number=${build.number}"
             }
         }
         stage('Acceptance') {
             steps {
                 echo "Acceptance stage"
+                 sh "./mvnw -B integration-test -Dbuild.number=${build.number}"
+            }
+        }
+        stage('Docker') {
+            steps {
+                sh "docker build -f Dockerfile.layered -t ${IMAGE_NAME} ."
+                sh "echo ${DOCKERHUB_CREDENTIALS_PSW} | docker login -u=${DOCKERHUB_CREDENTIALS_USR} --password-stdin"
+                sh "docker push ${IMAGE_NAME}"
+                sh "docker tag ${IMAGE_NAME} nicewithothers/employees_jenkins:latest"
+                sh "docker push nicewithothers/employees_jenkins:latest"
             }
         }
     }
