@@ -18,13 +18,13 @@ pipeline {
         stage('Commit') {
             steps {
                 echo "Commit stage"
-                sh "./mvnw -B clean package -Dbuild.number=${build.number}"
+                sh "./mvnw -B clean package -Dbuild.number=${BUILD_NUMBER}"
             }
         }
         stage('Acceptance') {
             steps {
                 echo "Acceptance stage"
-                 sh "./mvnw -B integration-test -Dbuild.number=${build.number}"
+                 sh "./mvnw -B integration-test -Dbuild.number=${BUILD_NUMBER}"
             }
         }
         stage('Docker') {
